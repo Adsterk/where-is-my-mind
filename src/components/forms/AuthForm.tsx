@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSupabase } from '@/hooks/useSupabase'
+import { useSupabase } from '@/components/providers/SupabaseProvider'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 interface AuthFormProps {
   view: 'sign-in' | 'sign-up' | 'forgot-password'
@@ -10,7 +12,7 @@ interface AuthFormProps {
 
 export function AuthForm({ view }: AuthFormProps) {
   const router = useRouter()
-  const { supabase } = useSupabase()
+  const supabase = useSupabase()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -32,6 +34,7 @@ export function AuthForm({ view }: AuthFormProps) {
         })
         if (error) throw error
         router.push('/dashboard')
+        router.refresh()
       } else if (view === 'sign-up') {
         const { error } = await supabase.auth.signUp({
           email,

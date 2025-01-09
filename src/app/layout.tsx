@@ -2,6 +2,7 @@ import React from 'react'
 import SupabaseProvider from '@/components/providers/SupabaseProvider'
 import { Metadata } from 'next'
 import './globals.css'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
 
 export const metadata: Metadata = {
   title: 'Mood Tracker',
@@ -14,11 +15,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <SupabaseProvider>
-          {children}
-        </SupabaseProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SupabaseProvider>
+            {children}
+          </SupabaseProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
