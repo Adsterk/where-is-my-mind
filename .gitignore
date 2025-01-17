@@ -1,58 +1,19 @@
-node_modules
-.next
-.env
-.env.local
-.DS_Store
-*.log
-
-echo "# Build
-.next
-out
-dist
-
-# Dependencies
-node_modules
-
-# Environment
-.env*
-!.env.example
-
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# System
-.DS_Store
-*.pem
-
-# IDE
-.idea
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-
-# Testing
-coverage
-
-# Misc
-*.log" >> .gitignore
-
-# Add comprehensive .gitignore
-cat > .gitignore << EOL
 # Dependencies
 node_modules
 .pnp
 .pnp.js
 
-# Testing
-/coverage
-.nyc_output
-
 # Next.js
 /.next/
 /out/
 /build
+dist
+
+# Testing
+/coverage
+.nyc_output
+__snapshots__
+*.snap
 
 # Environment
 .env
@@ -60,6 +21,7 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
 
 # Debug
 npm-debug.log*
@@ -93,12 +55,5 @@ yarn-error.log*
 /supabase/.temp
 /supabase/.branches
 
-# Build
-dist
-.next
-out
-
 # Misc
 *.log
-.env*.local
-EOL
