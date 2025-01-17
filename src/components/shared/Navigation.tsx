@@ -2,38 +2,57 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { authService } from '@/lib/auth-service'
+import { useToast } from '@/components/ui/use-toast'
+import { useRouter } from 'next/navigation'
 
 export function Navigation() {
   const pathname = usePathname()
+  const { toast } = useToast()
+  const router = useRouter()
 
-  const links = [
-    { href: '/dashboard', label: 'Overview' },
+  const handleSignOut = async () => {
+    try {
+      await authService.signOut()
+      router.replace('/auth/login')
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign out",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const navItems = [
+    { href: '/dashboard', label: 'Dashboard' },
     { href: '/dashboard/daily-mood', label: 'Daily Entry' },
     { href: '/dashboard/settings', label: 'Settings' },
   ]
 
   return (
     <nav className="border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex space-x-8">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors',
-                  pathname === link.href
-                    ? 'border-b-2 border-primary text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+      <div className="container flex h-16 items-center px-4">
+        <div className="mr-8">
+          <Link href="/dashboard" className="text-lg font-semibold">
+            Mood Tracker
+          </Link>
         </div>
+        <div className="flex items-center space-x-4 flex-1">
+          {navItems.map(({ href, label }) => (
+            <Button
+              key={href}
+              variant={pathname === href ? 'default' : 'ghost'}
+              asChild
+            >
+              <Link href={href}>{label}</Link>
+            </Button>
+          ))}
+        </div>
+        <Button variant="ghost" onClick={handleSignOut}>
+          Sign Out
+        </Button>
       </div>
     </nav>
   )

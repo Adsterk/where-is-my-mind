@@ -1,30 +1,35 @@
-import React from 'react'
+import { cookies } from 'next/headers'
+import { createClient } from '@/lib/server/auth'
 import SupabaseProvider from '@/components/providers/SupabaseProvider'
+import { ThemeProvider } from 'next-themes'
+import { Toaster } from '@/components/ui/toaster'
 import { Metadata } from 'next'
 import './globals.css'
-import { ThemeProvider } from '@/components/providers/ThemeProvider'
 
 export const metadata: Metadata = {
   title: 'Mood Tracker',
   description: 'Track and analyze your daily moods',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen bg-background antialiased">
         <ThemeProvider
-          attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <SupabaseProvider>
+          <SupabaseProvider initialSession={session?.user ?? null}>
             {children}
+            <Toaster />
           </SupabaseProvider>
         </ThemeProvider>
       </body>

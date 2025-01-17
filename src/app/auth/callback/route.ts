@@ -1,7 +1,6 @@
-import { createServerClient } from '@supabase/ssr'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { type ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -9,26 +8,19 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.delete({ name, ...options })
-          }
-        }
-      }
-    )
-    await supabase.auth.exchangeCodeForSession(code)
+    const supabase = createRouteHandlerClient({ 
+      cookies: () => cookieStore 
+    })
+    
+    try {
+      await supabase.auth.exchangeCodeForSession(code)
+    } catch (error) {
+      console.error('Auth callback error:', error)
+      return NextResponse.redirect(new URL('/auth/error', request.url))
+    }
   }
 
-  // Always redirect to dashboard after auth
   return NextResponse.redirect(new URL('/dashboard', request.url))
-} 
+}
+
+export const dynamic = 'force-dynamic' 

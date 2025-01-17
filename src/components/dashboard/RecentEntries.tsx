@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSupabase } from '@/hooks/useSupabase'
+import { useSupabase } from '@/components/providers/SupabaseProvider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { format } from 'date-fns'
 
@@ -13,7 +13,7 @@ interface MoodEntry {
 }
 
 export function RecentEntries() {
-  const supabase = useSupabase()
+  const { supabase } = useSupabase()
   const [entries, setEntries] = useState<MoodEntry[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -41,7 +41,7 @@ export function RecentEntries() {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p>Loading...</p>
+          <div>Loading...</div>
         ) : entries.length > 0 ? (
           <div className="space-y-4">
             {entries.map((entry) => (

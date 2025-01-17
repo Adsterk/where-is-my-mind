@@ -1,0 +1,56 @@
+/* Font size adjustments */
+.text-normal {
+  font-size: 1rem;
+}
+
+.text-large {
+  font-size: 1.2rem;
+}
+
+.text-x-large {
+  font-size: 1.4rem;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --primary: 0 0% 0%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 0%;
+  --border: 0 0% 0%;
+}
+
+.dark .high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --muted: 0 0% 3.9%;
+  --muted-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+}
+
+/* Color blind modes */
+[data-color-blind-mode="protanopia"] {
+  --chart-1: 45 100% 50%;
+  --chart-2: 220 70% 50%;
+  --chart-3: 180 50% 50%;
+}
+
+[data-color-blind-mode="deuteranopia"] {
+  --chart-1: 0 0% 60%;
+  --chart-2: 220 70% 50%;
+  --chart-3: 45 100% 50%;
+}
+
+[data-color-blind-mode="tritanopia"] {
+  --chart-1: 0 0% 60%;
+  --chart-2: 280 50% 50%;
+  --chart-3: 45 100% 50%;
+}
+
+/* Reduced motion */
+.reduced-motion * {
+  transition: none !important;
+  animation: none !important;
+} 

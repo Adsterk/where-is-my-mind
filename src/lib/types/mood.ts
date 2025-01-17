@@ -1,10 +1,13 @@
-export interface MoodEntry {
-  id: string
+export interface NewMoodEntry {
   user_id: string
   mood_score: number
   notes: string | null
-  created_at: string
+  sleep_hours: number
+  sleep_quality: string | null
   timezone: string
 }
 
-export type NewMoodEntry = Omit<MoodEntry, 'id' | 'created_at'> 
+export interface MoodEntry extends NewMoodEntry {
+  id: string
+  created_at: string
+} 

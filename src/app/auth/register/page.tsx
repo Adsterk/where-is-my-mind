@@ -1,108 +1,85 @@
 'use client'
 
-import { useSupabase } from '@/components/providers/SupabaseProvider'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signUp } from '@/lib/auth'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import Link from 'next/link'
+import { useToast } from '@/components/ui/use-toast'
 
-export default function Register() {
+export default function RegisterPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const supabase = useSupabase()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setLoading(true)
-    setError(null)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
 
-    const formData = new FormData(event.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const fullName = formData.get('fullName') as string
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
-    })
-
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push('/auth/verify-email')
+    try {
+      await signUp(email, password)
+      toast({
+        title: "Success",
+        description: "Please check your email to verify your account.",
+      })
+      router.push('/auth/login')
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to register",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-center">Create an account</h2>
-        <p className="mt-2 text-sm text-center text-gray-600">
-          Track your daily moods and improve your well-being
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-            Full Name
-          </label>
-          <input
-            id="fullName"
-            name="fullName"
-            type="text"
-            required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-          />
-        </div>
-
-        {error && (
-          <div className="text-red-600 text-sm">
-            {error}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-2xl text-center">Register</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-        >
-          {loading ? 'Creating account...' : 'Create account'}
-        </button>
-      </form>
-    </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Registering...' : 'Register'}
+          </Button>
+        </form>
+        <div className="mt-4 text-center text-sm">
+          <Link href="/auth/login" className="text-primary hover:underline">
+            Already have an account? Sign in
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   )
 } 

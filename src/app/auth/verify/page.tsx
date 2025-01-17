@@ -1,10 +1,10 @@
-export default function VerifyEmail() {
+export default function VerifyPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center mb-4">Check your email</h1>
-        <p className="text-center text-gray-600">
-          We sent you a verification link. Please check your email to continue.
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="max-w-md text-center p-8">
+        <h1 className="text-2xl font-bold mb-4">Check your email</h1>
+        <p className="text-muted-foreground">
+          We've sent you an email with a verification link. Please check your inbox and click the link to verify your account.
         </p>
       </div>
     </div>
