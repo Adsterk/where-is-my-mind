@@ -1,0 +1,281 @@
+import React, { useState } from 'react';
+import { PlusIcon, XIcon, ChevronDown } from 'lucide-react';
+
+const initialSections = {
+  medication: [],
+  behaviors: [],
+  skills: [],
+  social: [],
+  spiritual: []
+};
+
+export default function DailyEntryForm() {
+  const [moodScore, setMoodScore] = useState(5);
+  const [isBipolar, setIsBipolar] = useState(false);
+  const [sleepHours, setSleepHours] = useState(7);
+  const [sections, setSections] = useState(initialSections);
+  const [newItem, setNewItem] = useState('');
+  const [sectionStates, setSectionStates] = useState({});
+
+  const handleAddItem = (section) => {
+    if (newItem.trim()) {
+      setSections(prev => ({
+        ...prev,
+        [section]: [...prev[section], { id: Date.now(), name: newItem, checked: false }]
+      }));
+      setNewItem('');
+    }
+  };
+
+  const handleToggleItem = (section, itemId) => {
+    setSections(prev => ({
+      ...prev,
+      [section]: prev[section].map(item => 
+        item.id === itemId ? { ...item, checked: !item.checked } : item
+      )
+    }));
+  };
+
+  const handleDeleteItem = (section, itemId) => {
+    setSections(prev => ({
+      ...prev,
+      [section]: prev[section].filter(item => item.id !== itemId)
+    }));
+  };
+
+  const toggleSection = (section) => {
+    setSectionStates(prev => {
+      const currentState = prev[section] || { isExpanded: false, isEditing: false };
+      
+      // If it's not expanded, expand it and show edit mode
+      if (!currentState.isExpanded) {
+        return {
+          ...prev,
+          [section]: { isExpanded: true, isEditing: true }
+        };
+      }
+      
+      // Toggle between edit and view mode while keeping section expanded
+      return {
+        ...prev,
+        [section]: { isExpanded: true, isEditing: !currentState.isEditing }
+      };
+    });
+  };
+
+  const getMoodColor = (value) => {
+    if (isBipolar) {
+      if (value < 5) return 'bg-red-500';
+      if (value > 5) return 'bg-yellow-500';
+      return 'bg-green-500';
+    }
+    if (value <= 3) return 'bg-red-500';
+    if (value <= 7) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+
+  const getSleepColor = (hours) => {
+    if (hours < 4) return 'bg-red-500';
+    if (hours < 6) return 'bg-yellow-500';
+    if (hours <= 9) return 'bg-green-500';
+    return 'bg-yellow-500';
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Daily Entry Form</h1>
+        <button className="px-4 py-2 text-sm rounded-md border hover:bg-gray-50">
+          Edit Form
+        </button>
+      </div>
+
+      {/* Mood Score */}
+      <div className="p-6 rounded-lg border space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Mood Score</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Bipolar Scale</span>
+            <button 
+              onClick={() => setIsBipolar(!isBipolar)}
+              className={`w-12 h-6 rounded-full transition-colors ${isBipolar ? 'bg-blue-600' : 'bg-gray-200'}`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white transform transition-transform ${isBipolar ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="relative">
+            <input 
+              type="range" 
+              min="0" 
+              max="10" 
+              value={moodScore}
+              onChange={(e) => setMoodScore(Number(e.target.value))}
+              className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${getMoodColor(moodScore)}`}
+            />
+            {isBipolar && (
+              <div 
+                className="absolute w-16 text-center text-sm text-gray-600"
+                style={{ 
+                  left: '50%', 
+                  transform: 'translateX(-50%)', 
+                  bottom: '-24px' 
+                }}
+              >
+                Optimal
+              </div>
+            )}
+          </div>
+          <div className="flex justify-between text-sm text-gray-600 mt-6">
+            {isBipolar ? (
+              <>
+                <span>Severe Depression</span>
+                <span className="invisible">Optimal</span>
+                <span>Severe Mania</span>
+              </>
+            ) : (
+              <>
+                <span>Worst</span>
+                <span>Best</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Sleep Score */}
+      <div className="p-6 rounded-lg border space-y-4">
+        <h2 className="text-lg font-semibold">Hours Slept</h2>
+        <div className="space-y-4">
+          <div className="relative">
+            <input 
+              type="range" 
+              min="0" 
+              max="12" 
+              step="0.5"
+              value={sleepHours}
+              onChange={(e) => setSleepHours(Number(e.target.value))}
+              className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${getSleepColor(sleepHours)}`}
+            />
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">0 hours</span>
+            <span className={`font-medium ${
+              sleepHours >= 6 && sleepHours <= 9 
+                ? 'text-green-600' 
+                : sleepHours < 4 
+                  ? 'text-red-600' 
+                  : 'text-yellow-600'
+            }`}>
+              {sleepHours} hours
+            </span>
+            <span className="text-gray-600">12 hours</span>
+          </div>
+          <div className="text-sm text-gray-500 text-center">
+            {sleepHours >= 6 && sleepHours <= 9 
+              ? 'Optimal sleep duration'
+              : sleepHours < 4 
+                ? 'Insufficient sleep'
+                : sleepHours > 9 
+                  ? 'Excessive sleep'
+                  : 'Below recommended amount'}
+          </div>
+        </div>
+      </div>
+
+      {/* Tracking Sections */}
+      {Object.entries(sections).map(([section, items]) => {
+        const sectionState = sectionStates[section] || { isExpanded: false, isEditing: false };
+        
+        return (
+          <div key={section} className="p-6 rounded-lg border space-y-4">
+            <div 
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleSection(section)}
+            >
+              <h2 className="text-lg font-semibold capitalize">{section}</h2>
+              <div className="flex items-center space-x-2">
+                {!sectionState.isEditing && items.length > 0 && (
+                  <span className="text-sm text-gray-500">
+                    Click to add items
+                  </span>
+                )}
+                <button 
+                  className="p-1 rounded-md hover:bg-gray-100"
+                >
+                  <ChevronDown 
+                    className={`w-5 h-5 transform transition-transform duration-200 ${
+                      sectionState.isEditing ? 'rotate-180' : ''
+                    }`} 
+                  />
+                </button>
+              </div>
+            </div>
+            
+            <div className={`space-y-4 ${
+              sectionState.isExpanded ? 'block' : 'hidden'
+            }`}>
+              {/* Add Item Form - only shown in edit mode */}
+              {sectionState.isEditing && (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newItem}
+                    onChange={(e) => setNewItem(e.target.value)}
+                    placeholder={`Add new ${section} item...`}
+                    className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddItem(section)}
+                  />
+                  <button
+                    onClick={() => handleAddItem(section)}
+                    className="p-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+              
+              {/* Items List - always visible if items exist */}
+              {items.length > 0 && (
+                <div className="space-y-2">
+                  {items.map(item => (
+                    <div key={item.id} className="flex items-center justify-between p-2 rounded-md hover:bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={() => handleToggleItem(section, item.id)}
+                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>{item.name}</span>
+                      </div>
+                      {sectionState.isEditing && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteItem(section, item.id);
+                          }}
+                          className="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100"
+                        >
+                          <XIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Submit Button */}
+      <button className="w-full py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium">
+        Save Daily Entry
+      </button>
+    </div>
+  );
+}
