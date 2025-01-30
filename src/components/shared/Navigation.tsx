@@ -1,20 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { authService } from '@/lib/auth-service'
+import { authService } from '@/lib/auth/auth-service'
 import { useToast } from '@/components/ui/use-toast'
-import { useRouter } from 'next/navigation'
+import { useSupabase } from '@/components/providers'
 
 export function Navigation() {
   const pathname = usePathname()
   const { toast } = useToast()
   const router = useRouter()
+  const { auth } = useSupabase()
 
   const handleSignOut = async () => {
     try {
       await authService.signOut()
+      toast({
+        title: "Success",
+        description: "You have been signed out successfully"
+      })
       router.replace('/auth/login')
     } catch (error: any) {
       toast({
@@ -30,6 +35,11 @@ export function Navigation() {
     { href: '/dashboard/daily-mood', label: 'Daily Entry' },
     { href: '/dashboard/settings', label: 'Settings' },
   ]
+
+  // Don't render navigation if not authenticated
+  if (!auth.isAuthenticated) {
+    return null
+  }
 
   return (
     <nav className="border-b">

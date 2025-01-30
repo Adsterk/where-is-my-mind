@@ -1,20 +1,39 @@
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Authentication - Mood Tracker',
-  description: 'Sign in or register for Mood Tracker',
-}
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent } from '@/components/ui/card'
+import { useSupabase } from '@/components/providers'
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-md">
-        {children}
+  const { auth } = useSupabase()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!auth.isLoading && auth.isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [auth.isLoading, auth.isAuthenticated, router])
+
+  if (auth.isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
       </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-6">
+          {children}
+        </CardContent>
+      </Card>
     </div>
   )
 } 

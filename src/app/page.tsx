@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
-import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
+import { redirect } from 'next/navigation'
 
-export default async function RootPage() {
+export default async function HomePage() {
   const cookieStore = cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,25 +12,17 @@ export default async function RootPage() {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options)
-        },
-        remove(name: string, options: any) {
-          cookieStore.set(name, '', { ...options, maxAge: 0 })
-        },
       },
     }
   )
 
-  try {
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (session) {
-      redirect('/dashboard')
-    }
-  } catch (error) {
-    console.error('Auth error:', error)
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // If user is authenticated, redirect to dashboard
+  if (user) {
+    redirect('/dashboard')
   }
 
+  // If not authenticated, redirect to login
   redirect('/auth/login')
 }

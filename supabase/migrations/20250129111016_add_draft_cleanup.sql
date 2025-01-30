@@ -2,49 +2,70 @@
 
 -- Add last_accessed column to user_preferences
 alter table public.user_preferences
-add column draft_last_accessed timestamp with time zone default timezone('utc'::text, now());
+add column if not exists draft_last_accessed timestamp with time zone default timezone('utc'::text, now());
 
 -- Create function to clean old drafts
-create or replace function clean_old_drafts()
-returns void
+create or replace function app_utils.clean_old_drafts(older_than interval default interval '24 hours')
+returns integer
 language plpgsql
 security definer
-as 90351
+as $$
+declare
+  cleaned_count integer;
 begin
-  -- Clean drafts older than 24 hours
+  -- Clean drafts older than the specified interval
+  with cleaned_drafts as (
+    update public.user_preferences
+    set draft_data = '{}'::jsonb,
+        draft_last_accessed = null
+    where draft_last_accessed < now() - older_than
+    and draft_data != '{}'::jsonb
+    returning id
+  )
+  select count(*) into cleaned_count from cleaned_drafts;
+  
+  return cleaned_count;
+end;
+$$;
+
+-- Create function to clean single user's drafts
+create or replace function app_utils.clean_user_drafts(user_id uuid)
+returns boolean
+language plpgsql
+security definer
+as $$
+begin
   update public.user_preferences
   set draft_data = '{}'::jsonb,
       draft_last_accessed = null
-  where draft_last_accessed < now() - interval '24 hours'
+  where id = user_id
   and draft_data != '{}'::jsonb;
+  
+  return found;
 end;
-90351;
+$$;
 
--- Create trigger function to update last_accessed
-create or replace function update_draft_last_accessed()
+-- Create trigger function to update last_accessed and auto-clean old drafts
+create or replace function app_utils.update_draft_last_accessed()
 returns trigger
 language plpgsql
-as 90351
+as $$
 begin
   -- Only update timestamp if draft_data is being modified
   if OLD.draft_data != NEW.draft_data then
     NEW.draft_last_accessed = timezone('utc'::text, now());
+    
+    -- Clean old drafts when a user saves new draft data
+    -- This helps maintain cleanup without relying on cron
+    perform app_utils.clean_old_drafts();
   end if;
   return NEW;
 end;
-90351;
+$$;
 
 -- Create trigger
+drop trigger if exists update_draft_timestamp on public.user_preferences;
 create trigger update_draft_timestamp
   before update on public.user_preferences
   for each row
-  execute function update_draft_last_accessed();
-
--- Schedule cleanup job (runs every hour)
-select cron.schedule(
-  'cleanup-drafts',
-  '0 * * * *',  -- Every hour
-  90351
-    select clean_old_drafts();
-  90351
-);
+  execute function app_utils.update_draft_last_accessed();

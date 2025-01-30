@@ -31,13 +31,6 @@ export const authService = {
     if (error) throw this.handleError(error)
   },
 
-  async getSession() {
-    const supabase = createClient()
-    const { data: { session }, error } = await supabase.auth.getSession()
-    if (error) throw this.handleError(error)
-    return session
-  },
-
   async getUser() {
     const supabase = createClient()
     const { data: { user }, error } = await supabase.auth.getUser()
