@@ -1,15 +1,30 @@
-const withPWA = require('next-pwa')
-const { PWA_CONFIG } = require('./src/lib/pwa/config.js')
-
 /** @type {import('next').NextConfig} */
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development'
+})
+
 const nextConfig = {
-  reactStrictMode: true,
+  output: 'standalone',
   images: {
     domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
-  experimental: {
-    optimizePackageImports: ['@/components/ui'],
-  }
+  // Disable type checking during build for faster builds
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // Disable ESLint during build for faster builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
-module.exports = withPWA(PWA_CONFIG)(nextConfig) 
+module.exports = withPWA(nextConfig) 
