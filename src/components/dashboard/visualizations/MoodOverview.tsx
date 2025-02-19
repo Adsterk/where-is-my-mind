@@ -32,7 +32,8 @@ export function MoodOverview({ initialData }: MoodOverviewProps) {
         is_bipolar: entry.is_bipolar_scale
       }
     } catch (error) {
-      console.error('Error fetching today\'s mood:', error)
+      // Only log unexpected errors, don't show them to the user
+      console.error('Unexpected error fetching today\'s mood:', error)
       return null
     }
   }, [supabase, user?.id])

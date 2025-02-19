@@ -28,8 +28,12 @@ export async function fetchTodaysMood(
     .eq('date', todayStr)
     .single()
 
+  if (error?.code === 'PGRST116') {
+    return null
+  }
+
   if (error) {
-    console.error('Error fetching mood:', error)
+    console.error('Unexpected error fetching mood:', error)
     throw error
   }
 
@@ -58,7 +62,7 @@ export async function fetchMoodRange(
     .order('date', { ascending: true })
 
   if (error) {
-    console.error('Error fetching mood range:', error)
+    console.error('Unexpected error fetching mood range:', error)
     throw error
   }
 

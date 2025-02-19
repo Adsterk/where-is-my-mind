@@ -7,6 +7,25 @@
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "portrait",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "categories": ["health", "lifestyle", "medical"],
+  "shortcuts": [
+    {
+      "name": "New Entry",
+      "short_name": "Add Entry",
+      "description": "Record today's mood",
+      "url": "/form/mood-entry",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your mood dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",

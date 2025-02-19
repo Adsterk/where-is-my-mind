@@ -1,9 +1,16 @@
 /** @type {import('next').NextConfig} */
-const withPWA = require('next-pwa')({
+const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development'
+  disable: process.env.NODE_ENV === 'development',
+  // Increase security with strict CSP
+  cacheOnFrontEndNav: true,
+  reloadOnOnline: true,
+  swcMinify: true,
+  workboxOptions: {
+    disableDevLogs: true,
+  }
 })
 
 const nextConfig = {
@@ -24,7 +31,8 @@ const nextConfig = {
   // Disable ESLint during build for faster builds
   eslint: {
     ignoreDuringBuilds: true,
-  },
+  }
 }
 
+// Apply PWA configuration
 module.exports = withPWA(nextConfig) 

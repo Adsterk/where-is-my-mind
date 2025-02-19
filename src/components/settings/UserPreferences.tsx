@@ -43,53 +43,45 @@ export function UserPreferences() {
     try {
       setLoading(true)
       
-      // Load theme from profile first
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('theme')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (profileError) {
-        console.error('Error loading profile:', profileError)
-        // Don't throw here, continue loading preferences
-      } else if (profile?.theme) {
-        setTheme(profile.theme)
-      }
-
-      // Then try to get existing preferences
+      // Get existing preferences including theme
       const { data: existingPrefs, error: selectError } = await supabase
         .from('user_preferences')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle()
 
-      if (selectError && selectError.code === 'PGRST204') {
-        // Preferences don't exist, create them
-        const { data: newPrefs, error: insertError } = await supabase
-          .from('user_preferences')
-          .insert([
-            {
-              user_id: user.id,
-              use_bipolar_scale: false
-            }
-          ])
-          .select()
-          .single()
+      if (selectError) {
+        if (selectError.code === 'PGRST204') {
+          // Preferences don't exist, create them
+          const { data: newPrefs, error: insertError } = await supabase
+            .from('user_preferences')
+            .insert([
+              {
+                user_id: user.id,
+                theme: 'system',
+                use_bipolar_scale: false,
+                notification_enabled: false
+              }
+            ])
+            .select()
+            .single()
 
-        if (insertError) throw insertError
-        
-        if (newPrefs) {
-          setPreferences({
-            use_bipolar_scale: newPrefs.use_bipolar_scale
-          })
+          if (insertError) throw insertError
+          
+          if (newPrefs) {
+            setPreferences({
+              use_bipolar_scale: newPrefs.use_bipolar_scale
+            })
+            setTheme(newPrefs.theme)
+          }
+        } else {
+          throw selectError
         }
-      } else if (selectError) {
-        throw selectError
       } else if (existingPrefs) {
         setPreferences({
           use_bipolar_scale: existingPrefs.use_bipolar_scale
         })
+        setTheme(existingPrefs.theme)
       }
     } catch (error) {
       console.error('Error loading preferences:', error)
@@ -144,12 +136,12 @@ export function UserPreferences() {
       setTheme(newTheme)
 
       const { error } = await supabase
-        .from('profiles')
+        .from('user_preferences')
         .update({ 
           theme: newTheme,
           updated_at: new Date().toISOString()
         })
-        .eq('id', user.id)
+        .eq('user_id', user.id)
 
       if (error) throw error
 
