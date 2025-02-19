@@ -23,6 +23,6 @@ export default async function HomePage() {
     redirect('/dashboard')
   }
 
-  // If not authenticated, redirect to login
-  redirect('/auth/login')
+  // If not authenticated, redirect to signin
+  redirect('/auth/signin')
 }

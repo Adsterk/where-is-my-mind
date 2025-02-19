@@ -2,17 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { SupabaseClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
+import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-
-interface LoginFormProps {
-  supabaseClient?: SupabaseClient;
-}
 
 interface FormErrors {
   email?: string;
@@ -20,17 +16,15 @@ interface FormErrors {
   general?: string;
 }
 
-export function LoginForm({ supabaseClient }: LoginFormProps) {
+export function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
-  const { supabase: defaultClient } = useSupabase()
+  const { supabase } = useSupabase()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-
-  const client = supabaseClient || defaultClient
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -67,30 +61,31 @@ export function LoginForm({ supabaseClient }: LoginFormProps) {
     setIsLoading(true)
 
     try {
-      const { error } = await client.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) {
-        if (error.message.includes('network')) {
-          throw new Error('Network error')
-        }
-        throw error
-      }
+      if (signInError) throw signInError
 
-      // Get the redirect URL from query parameters or default to dashboard
-      const redirectTo = searchParams.get('redirectTo') || '/dashboard'
-      router.push(redirectTo)
-      
       toast({
         title: 'Success',
         description: 'You have successfully signed in.',
       })
+
+      // Get the redirect URL from query parameters or default to dashboard
+      const redirectedFrom = searchParams.get('redirectedFrom')
+      const redirectTo = redirectedFrom && !redirectedFrom.startsWith('/auth/')
+        ? redirectedFrom
+        : '/dashboard'
+
+      // Use replace to prevent back button issues
+      router.replace(redirectTo)
     } catch (error: any) {
-      const errorMessage = error.message === 'Network error'
-        ? 'Network error'
-        : 'Invalid login credentials'
+      console.error('Login error:', error)
+      const errorMessage = error.message === 'Invalid login credentials'
+        ? 'Invalid email or password'
+        : 'An error occurred during sign in'
       
       toast({
         title: 'Error',
@@ -118,6 +113,7 @@ export function LoginForm({ supabaseClient }: LoginFormProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
             aria-describedby={errors.email ? 'email-error' : undefined}
           />
           {errors.email && (
@@ -132,6 +128,7 @@ export function LoginForm({ supabaseClient }: LoginFormProps) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
             aria-describedby={errors.password ? 'password-error' : undefined}
           />
           {errors.password && (
@@ -144,7 +141,14 @@ export function LoginForm({ supabaseClient }: LoginFormProps) {
         )}
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Signing in...' : 'Sign in'}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
+              Signing in...
+            </>
+          ) : (
+            'Sign in'
+          )}
         </Button>
 
         <div className="space-y-2 text-center text-sm">
@@ -159,7 +163,7 @@ export function LoginForm({ supabaseClient }: LoginFormProps) {
           <div>
             Don't have an account?{' '}
             <Link 
-              href="/auth/register" 
+              href="/auth/signup" 
               className="text-primary hover:underline"
             >
               Sign up

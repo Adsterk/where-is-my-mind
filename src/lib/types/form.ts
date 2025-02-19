@@ -12,7 +12,7 @@ export interface TrackingItem {
 export interface FormSection {
   id: string
   name: string
-  type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'spiritual'
+  type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
   default_order: number
   is_required: boolean
   is_visible?: boolean

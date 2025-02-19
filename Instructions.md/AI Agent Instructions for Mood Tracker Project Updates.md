@@ -12,53 +12,97 @@ src/
 │   ├── auth/              # Auth routes with server-side auth
 │   │   ├── login/
 │   │   ├── register/
-│   │   ├── reset-password/
-│   │   └── verify-email/
+│   │   └── reset-password/
 │   ├── dashboard/         # Dashboard routes
-│   │   ├── daily-mood/    # Daily mood tracking
-│   │   ├── analytics/     # Mood analytics
 │   │   └── settings/      # User preferences and settings
 │   ├── form/             # Form routes
 │   │   └── mood-entry/   # Mood entry forms
 │   ├── api/              # API routes
 │   ├── layout.tsx        # Root layout with providers
-│   ├── page.tsx          # Landing page
-│   └── globals.css       # Global styles
+│   └── page.tsx          # Landing page
 ├── components/           # React components
-│   ├── auth/             # Auth components
-│   │   ├── login-form.tsx
-│   │   ├── register-form.tsx
-│   │   └── email-verification.tsx
+│   ├── dashboard/        # Dashboard components
+│   │   ├── overview/     # Overview components (MoodOverview)
+│   │   ├── visualizations/ # Data visualization components
+│   │   │   ├── MoodChart.tsx
+│   │   │   ├── MoodPatterns.tsx
+│   │   │   ├── RecentEntries.tsx
+│   │   │   └── BasicStats.tsx
+│   │   └── controls/     # Control components (DateRangeSelector)
 │   ├── form/             # Form components
 │   │   └── mood-entry/   # Mood tracking components
+│   │       ├── MoodScore.tsx
+│   │       ├── SleepScore.tsx
+│   │       ├── BaseTracker.tsx
+│   │       ├── MedicationTracker.tsx
+│   │       ├── BehaviorTracker.tsx
+│   │       ├── SkillsTracker.tsx
+│   │       ├── SocialTracker.tsx
+│   │       └── SelfCareTracker.tsx
 │   ├── providers/        # Context providers
 │   │   ├── auth/         # Auth provider
 │   │   ├── form/         # Form state provider
-│   │   ├── theme/        # Theme provider
 │   │   └── accessibility/# Accessibility provider
+│   ├── settings/         # Settings components
+│   │   ├── UserPreferences.tsx
+│   │   ├── DataManagement.tsx
+│   │   └── AccountSettings.tsx
 │   ├── shared/           # Shared components
-│   ├── ui/              # UI components (shadcn)
-│   └── dashboard/       # Dashboard components
+│   └── ui/              # UI components (shadcn)
 ├── lib/                 # Core utilities and logic
 │   ├── supabase/        # Supabase utilities
+│   │   ├── client.ts    # Browser client
+│   │   ├── server.ts    # Server client
+│   │   └── types.ts     # Supabase types
 │   ├── hooks/           # Custom hooks
 │   ├── stores/          # State management
 │   ├── types/           # TypeScript types
-│   ├── validation/      # Form validation schemas
-│   ├── utils/           # Utility functions
-│   ├── server/          # Server-side utilities
-│   └── theme-script.ts  # Theme initialization
-├── config/             # Configuration files
-├── styles/            # Global styles and themes
-├── types/             # Global TypeScript types
-└── tests/             # Test files
-    ├── auth/          # Auth tests
-    ├── components/    # Component tests
-    ├── utils/         # Utility tests
-    └── test-utils/    # Test utilities
+│   │   ├── database.ts  # Database types
+│   │   ├── entries.ts   # Entry types
+│   │   └── index.ts     # Type exports
+│   └── utils/           # Utility functions
+└── types/              # Global TypeScript types
 ```
 
-**Note**: The `hooks/` directory at the root level should be moved to `lib/hooks/` for better organization and to avoid duplication.
+## Component Organization
+
+### Dashboard Components
+The dashboard components are organized into three main categories:
+
+1. **Overview Components** (`components/dashboard/overview/`)
+   - `MoodOverview.tsx`: Displays today's mood summary
+
+2. **Visualization Components** (`components/dashboard/visualizations/`)
+   - `MoodChart.tsx`: Line chart visualization of mood trends
+   - `MoodPatterns.tsx`: Pattern analysis visualization
+   - `RecentEntries.tsx`: List of recent mood entries
+   - `BasicStats.tsx`: Statistical overview of mood data
+
+3. **Control Components** (`components/dashboard/controls/`)
+   - `DateRangeSelector.tsx`: Date range selection for visualizations
+
+### Form Components
+Form components are organized under `components/form/mood-entry/`:
+
+1. **Core Entry Components**
+   - `MoodScore.tsx`: Mood score input with bipolar scale option
+   - `SleepScore.tsx`: Sleep duration input with quality indicator
+
+2. **Tracking Components**
+   - `BaseTracker.tsx`: Base component for all tracking features
+   - `MedicationTracker.tsx`: Medication tracking
+   - `BehaviorTracker.tsx`: Behavior tracking
+   - `SkillsTracker.tsx`: Skills tracking
+   - `SocialTracker.tsx`: Social activities tracking
+   - `SelfCareTracker.tsx`: Self-care activities tracking
+
+### Settings Components
+Settings components are organized under `components/settings/`:
+
+1. **User Settings**
+   - `UserPreferences.tsx`: User preferences management
+   - `DataManagement.tsx`: Data export and management
+   - `AccountSettings.tsx`: Account deletion and management
 
 ## Code Organization Rules
 
@@ -289,3 +333,46 @@ export default async function FeatureLayout({
 5. Handle offline scenarios
 
 When suggesting code changes or creating new features, ensure all these guidelines are followed to maintain consistency with the existing codebase.
+
+## Types Organization
+
+### 1. Library Types (`src/lib/types/`)
+```
+lib/types/
+├── index.ts           # Barrel exports
+├── database.ts        # Database and Supabase types
+└── entries.ts         # Entry-related types
+```
+
+- Database types (`database.ts`):
+  - Supabase database schema types
+  - Database helper types
+  - Response types
+
+- Entry types (`entries.ts`):
+  - Form entry interfaces
+  - Tracking item types
+  - Entry helper types
+
+### 2. Component Types
+```
+components/feature-name/
+├── FeatureName.tsx    # Component implementation
+├── index.ts          # Barrel exports
+└── types.ts         # Component-specific types
+```
+
+- Keep types close to their components
+- Import base types from `@/lib/types`
+- Only define component-specific interfaces
+
+### 3. Global Types (`src/types/`)
+```
+types/
+├── index.ts          # Global type exports
+└── theme.ts         # Theme types
+```
+
+- Only truly global types
+- Theme and other app-wide types
+- Re-exports of commonly used types

@@ -1,95 +1,95 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { addDays, subDays, startOfDay, endOfDay } from 'date-fns'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { CalendarIcon } from 'lucide-react'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
+import { DatePickerWithRange } from '@/components/ui/date-picker'
+import type { DateRange as AppDateRange } from '../types'
+import type { DateRange as DayPickerDateRange } from 'react-day-picker'
 
 interface DateRangeSelectorProps {
-  onRangeChange: (start: Date, end: Date) => void
+  defaultValue?: AppDateRange
+  onRangeChange: (from: Date, to: Date) => void
 }
 
-export function DateRangeSelector({ onRangeChange }: DateRangeSelectorProps) {
-  const [startDate, setStartDate] = useState(
-    subDays(new Date(), 7).toISOString().split('T')[0]
-  )
-  const [endDate, setEndDate] = useState(
-    new Date().toISOString().split('T')[0]
-  )
+export function DateRangeSelector({ defaultValue, onRangeChange }: DateRangeSelectorProps) {
+  const [dateRange, setDateRange] = useState<DayPickerDateRange | undefined>(() => {
+    if (defaultValue?.from && defaultValue?.to) {
+      return defaultValue;
+    }
+    return {
+      from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      to: new Date()
+    };
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onRangeChange(
-      startOfDay(new Date(startDate)),
-      endOfDay(new Date(endDate))
-    )
+  const [activeRange, setActiveRange] = useState<'last7' | 'last30' | 'last90'>('last7');
+
+  useEffect(() => {
+    if (defaultValue?.from && defaultValue?.to) {
+      setDateRange(defaultValue)
+    }
+  }, [defaultValue])
+
+  const handleDateRangeChange = (range: DayPickerDateRange | undefined) => {
+    if (range?.from) {
+      setDateRange(range)
+      // Only trigger the change if we have both dates
+      if (range.to) {
+        onRangeChange(range.from, range.to)
+        setActiveRange('last7') // Reset active range when custom dates are selected
+      }
+    }
   }
 
-  const setPresetRange = (days: number) => {
-    const end = new Date()
-    const start = subDays(end, days)
-    setStartDate(start.toISOString().split('T')[0])
-    setEndDate(end.toISOString().split('T')[0])
-    onRangeChange(startOfDay(start), endOfDay(end))
+  const handleRangeSelect = (range: 'last7' | 'last30' | 'last90') => {
+    setActiveRange(range);
+    const to = new Date();
+    const from = new Date(Date.now() - (range === 'last7' ? 7 : range === 'last30' ? 30 : 90) * 24 * 60 * 60 * 1000);
+    const newRange = { from, to };
+    setDateRange(newRange);
+    onRangeChange(from, to);
   }
 
   return (
     <Card>
       <CardContent className="p-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-wrap gap-4">
+        <div className="space-y-6">
+          <div className="flex flex-wrap gap-2">
             <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPresetRange(7)}
+              variant={activeRange === 'last7' ? 'default' : 'outline'}
+              onClick={() => handleRangeSelect('last7')}
+              size="sm"
             >
               Last 7 Days
             </Button>
             <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPresetRange(30)}
+              variant={activeRange === 'last30' ? 'default' : 'outline'}
+              onClick={() => handleRangeSelect('last30')}
+              size="sm"
             >
               Last 30 Days
             </Button>
             <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPresetRange(90)}
+              variant={activeRange === 'last90' ? 'default' : 'outline'}
+              onClick={() => handleRangeSelect('last90')}
+              size="sm"
             >
               Last 90 Days
             </Button>
           </div>
-
-          <div className="flex flex-wrap gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="start-date">Start Date</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                max={endDate}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="end-date">End Date</Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate}
-                max={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-            <Button type="submit" className="self-end">
-              Apply Range
-            </Button>
+          <div>
+            <DatePickerWithRange
+              date={dateRange as AppDateRange}
+              onChange={handleDateRangeChange}
+            />
           </div>
-        </form>
+        </div>
       </CardContent>
     </Card>
   )

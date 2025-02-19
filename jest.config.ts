@@ -6,13 +6,14 @@ const createJestConfig = nextJest({
 })
 
 const config: Config = {
-  setupFilesAfterEnv: ['<rootDir>/src/tests/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/lib/test-utils/jest.setup.ts'],
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: [
-    '<rootDir>/src/tests/**/*.{spec,test}.{ts,tsx}',
+    '<rootDir>/src/**/__tests__/**/*.{spec,test}.{ts,tsx}',
+    '<rootDir>/src/**/*.{spec,test}.{ts,tsx}'
   ],
   collectCoverage: true,
   collectCoverageFrom: [

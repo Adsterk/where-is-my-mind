@@ -1,43 +1,39 @@
-import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
-import { redirect } from 'next/navigation'
-import { Navigation } from '@/components/shared/Navigation'
+'use client'
 
-export default async function DashboardLayout({
+import { useEffect } from 'react'
+import { useSupabase } from '@/components/providers'
+import { useRouter } from 'next/navigation'
+import { Navigation } from '@/components/shared/Navigation'
+import { LoadingScreen } from '@/components/shared/LoadingScreen'
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-      },
-    }
-  )
+  const { user, isLoading } = useSupabase()
+  const router = useRouter()
 
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    
-    if (error || !user) {
-      redirect('/auth/login')
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace('/auth/signin?redirectedFrom=/dashboard')
     }
+  }, [user, isLoading, router])
 
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navigation />
-        <main className="flex-1 container mx-auto px-4 py-8">
-          {children}
-        </main>
-      </div>
-    )
-  } catch (error) {
-    console.error('Dashboard layout error:', error)
-    redirect('/auth/login')
+  if (isLoading) {
+    return <LoadingScreen message="Loading dashboard..." fullScreen />
   }
+
+  if (!user) {
+    return <LoadingScreen message="Redirecting to sign in..." fullScreen />
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        {children}
+      </main>
+    </div>
+  )
 } 

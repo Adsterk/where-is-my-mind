@@ -173,7 +173,7 @@ export function RegisterForm({ supabaseClient }: RegisterFormProps) {
         <div className="text-center text-sm">
           Already have an account?{' '}
           <Link 
-            href="/auth/login" 
+            href="/auth/signin" 
             className="text-primary hover:underline"
           >
             Sign in

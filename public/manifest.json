@@ -1,11 +1,11 @@
 {
-  "name": "Mood Tracker",
-  "short_name": "Mood",
-  "description": "Track and analyze your daily moods",
+  "name": "Where Is My Mind - Mood Tracker",
+  "short_name": "Mood Tracker",
+  "description": "Track and analyze your daily moods and mental health patterns",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#000000",
   "orientation": "portrait",
   "icons": [
     {

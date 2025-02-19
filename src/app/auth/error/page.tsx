@@ -17,7 +17,7 @@ export default function AuthErrorPage() {
           </p>
           <div className="flex justify-center">
             <Button asChild>
-              <Link href="/auth/login">Return to Login</Link>
+              <Link href="/auth/signin">Return to Sign In</Link>
             </Button>
           </div>
         </CardContent>

@@ -14,11 +14,10 @@ export interface UserPreferences {
 
 export interface FormSection {
   id: string;
-  name: string;
-  type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'spiritual';
-  default_order: number;
+  title: string;
+  type: 'mood' | 'sleep' | 'tracking';
   is_required: boolean;
-  created_at: string;
+  display_order: number;
 }
 
 export interface UserSection {
@@ -74,3 +73,140 @@ export type DBArrayResult<T> = {
   data: T[] | null;
   error: Error | null;
 };
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      user_preferences: {
+        Row: {
+          id: string
+          theme_preference: string
+          language: string
+          timezone: string
+          form_layout: Json
+          draft_data: Json
+          draft_last_accessed: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          theme_preference?: string
+          language?: string
+          timezone?: string
+          form_layout?: Json
+          draft_data?: Json
+          draft_last_accessed?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          theme_preference?: string
+          language?: string
+          timezone?: string
+          form_layout?: Json
+          draft_data?: Json
+          draft_last_accessed?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      form_sections: {
+        Row: {
+          id: string
+          name: string
+          type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+          default_order: number
+          is_required: boolean
+          is_visible: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+          default_order: number
+          is_required?: boolean
+          is_visible?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+          default_order?: number
+          is_required?: boolean
+          is_visible?: boolean
+          created_at?: string
+        }
+      }
+      daily_entries: {
+        Row: {
+          id: string
+          user_id: string
+          date: string
+          mood_score: number | null
+          is_bipolar: boolean
+          sleep_hours: number | null
+          tracking_data: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          date: string
+          mood_score?: number | null
+          is_bipolar?: boolean
+          sleep_hours?: number | null
+          tracking_data?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          date?: string
+          mood_score?: number | null
+          is_bipolar?: boolean
+          sleep_hours?: number | null
+          tracking_data?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+    }
+    Functions: {
+      clean_old_drafts: {
+        Args: {
+          older_than?: string
+        }
+        Returns: number
+      }
+      clean_user_drafts: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
+    }
+    Enums: {
+      section_type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+    }
+  }
+}
+
+// Helper types for database operations
+export type Tables = Database['public']['Tables']
+export type TablesInsert<T extends keyof Tables> = Tables[T]['Insert']
+export type TablesUpdate<T extends keyof Tables> = Tables[T]['Update']
+export type TablesRow<T extends keyof Tables> = Tables[T]['Row']

@@ -1,30 +1,35 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { useSupabase } from '@/components/providers'
+import { useRouter, usePathname } from 'next/navigation'
+import { LoadingScreen } from '@/components/shared/LoadingScreen'
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { auth } = useSupabase()
+  const { isLoading, user } = useSupabase()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
-    if (!auth.isLoading && auth.isAuthenticated) {
-      router.push('/dashboard')
+    // If user is authenticated and on an auth page, redirect to dashboard
+    if (!isLoading && user && pathname.startsWith('/auth/')) {
+      router.replace('/dashboard')
     }
-  }, [auth.isLoading, auth.isAuthenticated, router])
+  }, [isLoading, user, router, pathname])
 
-  if (auth.isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
-      </div>
-    )
+  // Show loading state while checking auth
+  if (isLoading) {
+    return <LoadingScreen message="Checking authentication..." fullScreen />
+  }
+
+  // If user is authenticated, don't render auth pages
+  if (user) {
+    return <LoadingScreen message="Redirecting to dashboard..." fullScreen />
   }
 
   return (

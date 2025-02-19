@@ -6,874 +6,180 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
+export interface Database {
   public: {
     Tables: {
-      activities: {
-        Row: {
-          created_at: string
-          id: string
-          is_custom: boolean | null
-          is_default: boolean | null
-          name: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          is_default?: boolean | null
-          name: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          is_default?: boolean | null
-          name?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      activity_entries: {
-        Row: {
-          activity_id: string
-          created_at: string
-          duration_minutes: number | null
-          engagement_level: number | null
-          id: string
-          impact_rating: number | null
-          is_draft: boolean | null
-          mood_entry_id: string | null
-          notes: string | null
-          user_id: string | null
-        }
-        Insert: {
-          activity_id: string
-          created_at?: string
-          duration_minutes?: number | null
-          engagement_level?: number | null
-          id?: string
-          impact_rating?: number | null
-          is_draft?: boolean | null
-          mood_entry_id?: string | null
-          notes?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          activity_id?: string
-          created_at?: string
-          duration_minutes?: number | null
-          engagement_level?: number | null
-          id?: string
-          impact_rating?: number | null
-          is_draft?: boolean | null
-          mood_entry_id?: string | null
-          notes?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activity_entries_activity_id_fkey"
-            columns: ["activity_id"]
-            isOneToOne: false
-            referencedRelation: "activities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "activity_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      behavior_entries: {
-        Row: {
-          behavior_id: string | null
-          created_at: string | null
-          id: string
-          intensity: number | null
-          mood_entry_id: string | null
-          notes: string | null
-          user_id: string | null
-        }
-        Insert: {
-          behavior_id?: string | null
-          created_at?: string | null
-          id?: string
-          intensity?: number | null
-          mood_entry_id?: string | null
-          notes?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          behavior_id?: string | null
-          created_at?: string | null
-          id?: string
-          intensity?: number | null
-          mood_entry_id?: string | null
-          notes?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "behavior_entries_behavior_id_fkey"
-            columns: ["behavior_id"]
-            isOneToOne: false
-            referencedRelation: "behaviors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "behavior_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      behaviors: {
-        Row: {
-          created_at: string | null
-          id: string
-          name: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          name: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          name?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      form_section_preferences: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_visible: boolean | null
-          position: number
-          section_id: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_visible?: boolean | null
-          position: number
-          section_id: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_visible?: boolean | null
-          position?: number
-          section_id?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      medication_entries: {
-        Row: {
-          created_at: string
-          id: string
-          is_draft: boolean | null
-          medication_id: string
-          mood_entry_id: string | null
-          notes: string | null
-          side_effects: string | null
-          time_taken: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_draft?: boolean | null
-          medication_id: string
-          mood_entry_id?: string | null
-          notes?: string | null
-          side_effects?: string | null
-          time_taken: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_draft?: boolean | null
-          medication_id?: string
-          mood_entry_id?: string | null
-          notes?: string | null
-          side_effects?: string | null
-          time_taken?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "medication_entries_medication_id_fkey"
-            columns: ["medication_id"]
-            isOneToOne: false
-            referencedRelation: "medications"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "medication_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      medications: {
-        Row: {
-          created_at: string
-          dosage: string
-          id: string
-          name: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          dosage: string
-          id?: string
-          name: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          dosage?: string
-          id?: string
-          name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      mood_entries: {
-        Row: {
-          created_at: string
-          edit_history: Json[] | null
-          id: string
-          is_bipolar_scale: boolean | null
-          language: string
-          last_edited_at: string | null
-          mood_score: number
-          notes: string | null
-          section_order: string[] | null
-          sleep_hours: number | null
-          sleep_quality: string | null
-          timezone: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          edit_history?: Json[] | null
-          id?: string
-          is_bipolar_scale?: boolean | null
-          language?: string
-          last_edited_at?: string | null
-          mood_score: number
-          notes?: string | null
-          section_order?: string[] | null
-          sleep_hours?: number | null
-          sleep_quality?: string | null
-          timezone: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          edit_history?: Json[] | null
-          id?: string
-          is_bipolar_scale?: boolean | null
-          language?: string
-          last_edited_at?: string | null
-          mood_score?: number
-          notes?: string | null
-          section_order?: string[] | null
-          sleep_hours?: number | null
-          sleep_quality?: string | null
-          timezone?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mood_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      problematic_behavior_entries: {
-        Row: {
-          behavior_id: string
-          created_at: string
-          frequency_level: number | null
-          id: string
-          intensity_level: number | null
-          mood_entry_id: string
-          notes: string | null
-          triggers: string | null
-        }
-        Insert: {
-          behavior_id: string
-          created_at?: string
-          frequency_level?: number | null
-          id?: string
-          intensity_level?: number | null
-          mood_entry_id: string
-          notes?: string | null
-          triggers?: string | null
-        }
-        Update: {
-          behavior_id?: string
-          created_at?: string
-          frequency_level?: number | null
-          id?: string
-          intensity_level?: number | null
-          mood_entry_id?: string
-          notes?: string | null
-          triggers?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "problematic_behavior_entries_behavior_id_fkey"
-            columns: ["behavior_id"]
-            isOneToOne: false
-            referencedRelation: "problematic_behaviors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "problematic_behavior_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      problematic_behaviors: {
-        Row: {
-          created_at: string
-          id: string
-          is_custom: boolean | null
-          name: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          name: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          name?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          email: string
-          full_name: string | null
-          id: string
-          language: string
-          theme: string
-          timezone: string
-          updated_at: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          email: string
-          full_name?: string | null
-          id: string
-          language?: string
-          theme?: string
-          timezone?: string
-          updated_at?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          email?: string
-          full_name?: string | null
-          id?: string
-          language?: string
-          theme?: string
-          timezone?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      skill_entries: {
-        Row: {
-          created_at: string
-          effectiveness: number | null
-          id: string
-          mood_entry_id: string
-          notes: string | null
-          skill_id: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          effectiveness?: number | null
-          id?: string
-          mood_entry_id: string
-          notes?: string | null
-          skill_id: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          effectiveness?: number | null
-          id?: string
-          mood_entry_id?: string
-          notes?: string | null
-          skill_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "skill_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "skill_entries_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "skills"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      skills: {
-        Row: {
-          created_at: string
-          id: string
-          is_custom: boolean | null
-          name: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          name: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          name?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      social_connection_entries: {
-        Row: {
-          connection_id: string
-          created_at: string
-          id: string
-          impact_on_wellbeing: number | null
-          mood_entry_id: string
-          notes: string | null
-          quality_rating: number | null
-          user_id: string | null
-        }
-        Insert: {
-          connection_id: string
-          created_at?: string
-          id?: string
-          impact_on_wellbeing?: number | null
-          mood_entry_id: string
-          notes?: string | null
-          quality_rating?: number | null
-          user_id?: string | null
-        }
-        Update: {
-          connection_id?: string
-          created_at?: string
-          id?: string
-          impact_on_wellbeing?: number | null
-          mood_entry_id?: string
-          notes?: string | null
-          quality_rating?: number | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "social_connection_entries_connection_id_fkey"
-            columns: ["connection_id"]
-            isOneToOne: false
-            referencedRelation: "social_connections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "social_connection_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      social_connections: {
-        Row: {
-          created_at: string
-          id: string
-          is_custom: boolean | null
-          type: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          type: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          type?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      spiritual_practice_entries: {
-        Row: {
-          created_at: string
-          duration_minutes: number | null
-          id: string
-          impact_rating: number | null
-          mood_entry_id: string
-          notes: string | null
-          practice_id: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          duration_minutes?: number | null
-          id?: string
-          impact_rating?: number | null
-          mood_entry_id: string
-          notes?: string | null
-          practice_id: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          duration_minutes?: number | null
-          id?: string
-          impact_rating?: number | null
-          mood_entry_id?: string
-          notes?: string | null
-          practice_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "spiritual_practice_entries_mood_entry_id_fkey"
-            columns: ["mood_entry_id"]
-            isOneToOne: false
-            referencedRelation: "mood_entries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "spiritual_practice_entries_practice_id_fkey"
-            columns: ["practice_id"]
-            isOneToOne: false
-            referencedRelation: "spiritual_practices"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      spiritual_practices: {
-        Row: {
-          created_at: string
-          id: string
-          is_custom: boolean | null
-          type: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          type: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_custom?: boolean | null
-          type?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       user_preferences: {
         Row: {
-          created_at: string
-          form_sections: Json | null
           id: string
-          last_sign_in: string | null
-          notification_enabled: boolean | null
-          reminder_days: number[] | null
-          reminder_time: string | null
-          section_order: string[] | null
-          sign_in_count: number | null
-          updated_at: string
-          use_bipolar_scale: boolean | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          form_sections?: Json | null
-          id?: string
-          last_sign_in?: string | null
-          notification_enabled?: boolean | null
-          reminder_days?: number[] | null
-          reminder_time?: string | null
-          section_order?: string[] | null
-          sign_in_count?: number | null
-          updated_at?: string
-          use_bipolar_scale?: boolean | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          form_sections?: Json | null
-          id?: string
-          last_sign_in?: string | null
-          notification_enabled?: boolean | null
-          reminder_days?: number[] | null
-          reminder_time?: string | null
-          section_order?: string[] | null
-          sign_in_count?: number | null
-          updated_at?: string
-          use_bipolar_scale?: boolean | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_settings: {
-        Row: {
+          theme_preference: string
+          language: string
+          timezone: string
+          form_layout: Json
+          draft_data: Json
+          draft_last_accessed: string | null
           created_at: string
-          data_retention_days: number | null
-          notification_email: boolean
-          notification_push: boolean
-          reminder_days: number[] | null
-          reminder_time: string | null
           updated_at: string
-          user_id: string
         }
         Insert: {
+          id: string
+          theme_preference?: string
+          language?: string
+          timezone?: string
+          form_layout?: Json
+          draft_data?: Json
+          draft_last_accessed?: string | null
           created_at?: string
-          data_retention_days?: number | null
-          notification_email?: boolean
-          notification_push?: boolean
-          reminder_days?: number[] | null
-          reminder_time?: string | null
           updated_at?: string
-          user_id: string
         }
         Update: {
+          id?: string
+          theme_preference?: string
+          language?: string
+          timezone?: string
+          form_layout?: Json
+          draft_data?: Json
+          draft_last_accessed?: string | null
           created_at?: string
-          data_retention_days?: number | null
-          notification_email?: boolean
-          notification_push?: boolean
-          reminder_days?: number[] | null
-          reminder_time?: string | null
           updated_at?: string
-          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
-    }
-    Views: {
-      [_ in never]: never
+      form_sections: {
+        Row: {
+          id: string
+          name: string
+          type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+          default_order: number
+          is_required: boolean
+          is_visible: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+          default_order: number
+          is_required?: boolean
+          is_visible?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
+          default_order?: number
+          is_required?: boolean
+          is_visible?: boolean
+          created_at?: string
+        }
+      }
+      user_sections: {
+        Row: {
+          id: string
+          user_id: string
+          section_id: string
+          display_order: number
+          is_visible: boolean
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          section_id: string
+          display_order: number
+          is_visible?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          section_id?: string
+          display_order?: number
+          is_visible?: boolean
+        }
+      }
+      tracking_items: {
+        Row: {
+          id: string
+          user_id: string
+          section_id: string
+          name: string
+          is_active: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          section_id: string
+          name: string
+          is_active?: boolean
+          display_order: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          section_id?: string
+          name?: string
+          is_active?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      daily_entries: {
+        Row: {
+          id: string
+          user_id: string
+          date: string
+          mood_score: number | null
+          is_bipolar: boolean
+          sleep_hours: number | null
+          tracking_data: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          date: string
+          mood_score?: number | null
+          is_bipolar?: boolean
+          sleep_hours?: number | null
+          tracking_data?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          date?: string
+          mood_score?: number | null
+          is_bipolar?: boolean
+          sleep_hours?: number | null
+          tracking_data?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Functions: {
-      cleanup_draft_entries: {
+      clean_old_drafts: {
+        Args: {
+          older_than?: string
+        }
+        Returns: number
+      }
+      clean_user_drafts: {
         Args: {
           user_id: string
-          hours_old: number
-        }
-        Returns: undefined
-      }
-      cleanup_old_draft_entries: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      validate_reminder_days: {
-        Args: {
-          days: number[]
         }
         Returns: boolean
       }
     }
     Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
+      section_type: 'mood' | 'sleep' | 'medication' | 'behavior' | 'skill' | 'social' | 'self-care'
     }
   }
 }
-
-type PublicSchema = Database[Extract<keyof Database, "public">]
-
-export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
-  }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never

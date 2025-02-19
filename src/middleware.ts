@@ -1,122 +1,116 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { applySecurityHeaders } from '@/lib/auth/security-headers-config'
 
-// Define routes that don't require authentication
-const publicRoutes = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/reset-password',
-  '/auth/verify-email',
-  '/auth/update-password',
-]
+// Auth routes configuration
+const AUTH_ROUTES = {
+  signIn: '/auth/signin',
+  signUp: '/auth/signup',
+  forgotPassword: '/auth/forgot-password',
+  resetPassword: '/auth/reset-password',
+  verifyEmail: '/auth/verify-email',
+  callback: '/auth/callback',
+} as const
 
-// Define routes that are only accessible to non-authenticated users
-const authRoutes = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/reset-password',
-]
+export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname
+  
+  // Skip auth check for public routes and static files
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next()
+  }
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-        },
-      },
-    }
-  )
+  let response = NextResponse.next()
 
   try {
-    // Check auth status using getUser for better security
-    const { data: { user }, error } = await supabase.auth.getUser()
-    if (error) throw error
-
-    const pathname = new URL(request.url).pathname
-
-    // Handle protected routes
-    const isPublicRoute = publicRoutes.includes(pathname)
-    const isAuthRoute = authRoutes.includes(pathname)
-
-    if (!user) {
-      // If user is not logged in and trying to access a protected route
-      if (!isPublicRoute) {
-        const redirectUrl = new URL('/auth/login', request.url)
-        // Add the original URL as a query parameter to redirect back after login
-        redirectUrl.searchParams.set('redirectTo', pathname)
-        return NextResponse.redirect(redirectUrl)
+    // Create a new supabase client with cookies
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return req.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            response.cookies.set({
+              name,
+              value,
+              ...options,
+            })
+          },
+          remove(name: string, options: CookieOptions) {
+            response.cookies.set({
+              name,
+              value: '',
+              ...options,
+            })
+          },
+        },
       }
-    } else {
-      // If user is logged in and trying to access auth routes (login, register, etc.)
-      if (isAuthRoute) {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
-      }
+    )
+
+    // Get the session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    // Debug logging
+    console.log('Middleware - Path:', pathname)
+    console.log('Middleware - Session exists:', !!session)
+    if (sessionError) console.log('Middleware - Session error:', sessionError)
+
+    // If no session and not on an auth page, redirect to signin
+    if (!session && !pathname.startsWith('/auth/')) {
+      const redirectUrl = new URL(AUTH_ROUTES.signIn, req.url)
+      redirectUrl.searchParams.set('redirectedFrom', pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // If has session and on an auth page, redirect to dashboard
+    if (session && pathname.startsWith('/auth/')) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
     }
 
     return response
   } catch (error) {
-    console.error('Auth error in middleware:', error)
-    // If there's an error checking the session, treat it as not authenticated
-    if (!publicRoutes.includes(new URL(request.url).pathname)) {
-      return NextResponse.redirect(new URL('/auth/login', request.url))
-    }
-    return response
+    console.error('Middleware error:', error)
+    
+    // On error, redirect to signin without redirectedFrom to prevent loops
+    const redirectUrl = new URL(AUTH_ROUTES.signIn, req.url)
+    return NextResponse.redirect(redirectUrl)
   }
 }
 
+// Public routes that don't require authentication
+function isPublicRoute(pathname: string): boolean {
+  // Check if the path starts with any of these prefixes
+  const publicPrefixes = [
+    '/auth/',
+    '/_next/',
+    '/api/auth',
+    '/api/health',
+    '/api/webhook',
+    '/favicon.ico',
+    '/manifest.json',
+    '/icons/',
+    '/images/',
+    '/robots.txt',
+    '/sitemap.xml'
+  ]
+
+  if (pathname === '/') return true
+  return publicPrefixes.some(prefix => pathname.startsWith(prefix))
+}
+
+// Configure middleware matching
 export const config = {
   matcher: [
     /*
      * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api routes
+     * - public files with known extensions (.ico, .json, .svg, etc)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public/|api/).*)',
+    '/((?!_next/static|_next/image|manifest.json|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 } 
